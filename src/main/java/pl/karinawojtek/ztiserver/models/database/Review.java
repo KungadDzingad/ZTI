@@ -8,6 +8,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "Review_Type")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,5 +24,4 @@ public class Review {
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
     private User creator;
-
 }

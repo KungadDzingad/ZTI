@@ -15,6 +15,6 @@ import javax.persistence.ManyToOne;
 public class AuctionReview extends Review {
 
     @ManyToOne
-    @JoinColumn(name = "auction_id", nullable = false)
+    @JoinColumn(name = "auction_id", nullable = false,insertable = false, updatable = false)
     private Auction reviewedAuction;
 }

@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 public class UserReview extends Review{
 
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user_id", nullable=false,insertable = false, updatable = false)
     private User reviewedUser;
 
 }

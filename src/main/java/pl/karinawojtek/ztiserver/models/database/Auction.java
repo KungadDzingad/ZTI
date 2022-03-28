@@ -27,7 +27,7 @@ public class Auction {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user_id", nullable=false,insertable = false, updatable = false)
     private User owner;
 
     @ManyToOne
@@ -47,5 +47,7 @@ public class Auction {
     @OneToMany(mappedBy = "reviewedAuction" )
     private List<AuctionReview> reviews = new ArrayList<>();
 
+    @ManyToMany
+    private List<User> favorites = new ArrayList<>();
 
 }
