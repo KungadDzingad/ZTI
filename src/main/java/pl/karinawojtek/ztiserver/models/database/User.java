@@ -1,5 +1,6 @@
 package pl.karinawojtek.ztiserver.models.database;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class User {
     private long id;
     private String username;
     private String email;
+    @JsonIgnore
     private String password;
     private String name;
     private String phoneNumber;

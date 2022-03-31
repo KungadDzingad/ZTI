@@ -27,11 +27,11 @@ public class Auction {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false,insertable = false, updatable = false)
+    @JoinColumn(name="user_id", nullable=false)
     private User owner;
 
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="bidder_id", nullable=true,insertable = false, updatable = false)
     private User highestBidder;
 
     @Temporal(TemporalType.DATE)
@@ -41,7 +41,7 @@ public class Auction {
     private Date closingDate;
 
     @OneToOne
-    @JoinColumn(name="auction", nullable = true)
+    @JoinColumn(name="order_id", nullable = true)
     private Order order;
 
     @OneToMany(mappedBy = "reviewedAuction" )
@@ -49,5 +49,6 @@ public class Auction {
 
     @ManyToMany
     private List<User> favorites = new ArrayList<>();
+
 
 }

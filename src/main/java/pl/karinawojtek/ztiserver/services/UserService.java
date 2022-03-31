@@ -6,12 +6,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.karinawojtek.ztiserver.dao.UserRepository;
 import pl.karinawojtek.ztiserver.exception.DuplicateObjectException;
+import pl.karinawojtek.ztiserver.exception.ObjectByIdNotFoundException;
 import pl.karinawojtek.ztiserver.models.database.User;
 import pl.karinawojtek.ztiserver.models.request.RegisterUserRequest;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
+
 
 @Service
 public class UserService {
@@ -20,6 +21,13 @@ public class UserService {
     private UserRepository repository;
     @Autowired
     private PasswordEncoder encoder;
+
+    public User getUserById(long id) throws ObjectByIdNotFoundException {
+        Optional<User> userOpt = repository.findById(id);
+        if(userOpt.isEmpty())
+            throw new ObjectByIdNotFoundException();
+        return userOpt.get();
+    }
 
     public void registerUser(RegisterUserRequest reqisterUser) throws DuplicateObjectException {
         if(repository.findByUsername(reqisterUser.getUsername()).isPresent())

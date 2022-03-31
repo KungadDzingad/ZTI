@@ -13,9 +13,12 @@ public class UserController {
     @Autowired
     private UserService service;
 
+
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public void createUser(@RequestBody RegisterUserRequest registerUserRequest){
+        //trzeba autoryzacji
+
         service.registerUser(registerUserRequest);
     }
 
