@@ -8,7 +8,9 @@ import pl.karinawojtek.ztiserver.models.database.User;
 import pl.karinawojtek.ztiserver.models.request.CreateAuctionRequest;
 import pl.karinawojtek.ztiserver.services.AuctionService;
 import pl.karinawojtek.ztiserver.services.UserService;
+import pl.karinawojtek.ztiserver.utils.CookieUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -20,6 +22,9 @@ public class AuctionController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CookieUtil cookieUtil;
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
@@ -35,8 +40,9 @@ public class AuctionController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public void createAuction(@RequestBody CreateAuctionRequest createAuction, @RequestParam long userId){
-        User user = userService.getUserById(userId);
+    public void createAuction(@RequestBody CreateAuctionRequest createAuction, HttpServletRequest request){
+        String username = cookieUtil.getUsernameFromAuthorizationCookie(request);
+        User user = userService.getUserByUsername(username);
         auctionService.createAuction(createAuction, user);
     }
 

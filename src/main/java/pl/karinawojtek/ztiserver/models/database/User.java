@@ -18,12 +18,20 @@ public class User {
     @Id
     @GeneratedValue
     private long id;
+    @Column(unique = true)
     private String username;
+    @Column(unique = true)
     private String email;
     @JsonIgnore
     private String password;
     private String name;
+    @Column(unique = true)
     private String phoneNumber;
+
+    @ManyToOne
+    @JoinColumn(name="user_role_id", nullable=false)
+    private UserRole role;
+
     @Temporal(TemporalType.DATE)
     private Date registrationDate;
 
