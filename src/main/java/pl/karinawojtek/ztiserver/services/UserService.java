@@ -10,9 +10,11 @@ import pl.karinawojtek.ztiserver.exception.DuplicateObjectException;
 import pl.karinawojtek.ztiserver.exception.ObjectByIdNotFoundException;
 import pl.karinawojtek.ztiserver.models.database.User;
 import pl.karinawojtek.ztiserver.models.database.UserRole;
+import pl.karinawojtek.ztiserver.models.request.ChangePasswordRequest;
 import pl.karinawojtek.ztiserver.models.request.RegisterUserRequest;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -60,4 +62,15 @@ public class UserService {
     }
 
 
+    public List<User> getAllUsers() {
+        return (List<User>)userRepository.findAll();
+    }
+
+    public void changePassword(User user, ChangePasswordRequest changePasswordRequest) {
+        if(!user.getPassword().equals(encoder.encode(changePasswordRequest.getOldPassword())))
+            throw new BadCredentialsException( user.getUsername()+" - old password not matching");
+        user.setPassword(encoder.encode(changePasswordRequest.getNewPassword()));
+        userRepository.save(user);
+
+    }
 }
