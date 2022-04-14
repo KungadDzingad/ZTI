@@ -1,4 +1,4 @@
-package pl.karinawojtek.ztiserver.exception;
+package pl.karinawojtek.ztiserver.exception.custom;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

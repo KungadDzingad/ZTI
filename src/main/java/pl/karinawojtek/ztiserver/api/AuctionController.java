@@ -1,16 +1,24 @@
 package pl.karinawojtek.ztiserver.api;
 
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.web.bind.annotation.*;
+import pl.karinawojtek.ztiserver.exception.custom.ObjectByIdNotFoundException;
+import pl.karinawojtek.ztiserver.exception.custom.WrongReviewMarkException;
 import pl.karinawojtek.ztiserver.models.database.Auction;
+import pl.karinawojtek.ztiserver.models.database.AuctionReview;
 import pl.karinawojtek.ztiserver.models.database.User;
 import pl.karinawojtek.ztiserver.models.request.CreateAuctionRequest;
+import pl.karinawojtek.ztiserver.models.request.CreateReviewRequest;
 import pl.karinawojtek.ztiserver.services.AuctionService;
+import pl.karinawojtek.ztiserver.services.ReviewService;
 import pl.karinawojtek.ztiserver.services.UserService;
 import pl.karinawojtek.ztiserver.utils.CookieUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -19,9 +27,10 @@ public class AuctionController {
 
     @Autowired
     private AuctionService auctionService;
-
     @Autowired
     private UserService userService;
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
     private CookieUtil cookieUtil;
@@ -34,17 +43,44 @@ public class AuctionController {
 
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public Auction getAuctionById(@PathVariable long id){
+    public Auction getAuctionById(@PathVariable long id) throws ObjectByIdNotFoundException {
         return auctionService.findAuctionById(id);
     }
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public void createAuction(@RequestBody CreateAuctionRequest createAuction, HttpServletRequest request){
-        String username = cookieUtil.getUsernameFromAuthorizationCookie(request);
-        User user = userService.getUserByUsername(username);
+    public void createAuction(@RequestBody CreateAuctionRequest createAuction, HttpServletRequest request) throws ParseException, NotFoundException {
+        User user = userService.getUserFromAuthorizedRequest(request);
         auctionService.createAuction(createAuction, user);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void deleteAuction(HttpServletRequest request, @PathVariable long id) throws AuthorizationServiceException, ObjectByIdNotFoundException, NotFoundException {
+       User user = userService.getUserFromAuthorizedRequest(request);
+        Auction auction = auctionService.getAuctionById(id);
+        if(user.isAdmin() || user.equals(auction.getOwner())){
+            auctionService.deleteAuction(auction);
+        }else throw new AuthorizationServiceException("User " + user.getUsername() + " not allowed to perform this operation");
+    }
 
+    @GetMapping("/{id}/reviews")
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<AuctionReview> getAuctionReviews(@PathVariable long id) throws ObjectByIdNotFoundException {
+        Auction auction = auctionService.getAuctionById(id);
+        return auction.getReviews();
+    }
+
+    @PostMapping("/{id}/reviews")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public void addAuctionReview(HttpServletRequest request, @PathVariable long id,
+                                 @RequestBody CreateReviewRequest reviewRequest)
+            throws AuthorizationServiceException, WrongReviewMarkException, ObjectByIdNotFoundException, NotFoundException
+    {
+
+        Auction auction = auctionService.getAuctionById(id);
+        User user = userService.getUserFromAuthorizedRequest(request);
+
+        reviewService.createAuctionReview(auction, user, reviewRequest);
+    }
 }

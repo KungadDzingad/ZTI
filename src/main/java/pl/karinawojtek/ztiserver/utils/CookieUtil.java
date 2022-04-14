@@ -1,6 +1,7 @@
 package pl.karinawojtek.ztiserver.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -26,12 +27,22 @@ public class CookieUtil {
         return null;
     }
 
-    public String getUsernameFromAuthorizationCookie(HttpServletRequest request){
-        return jwtUtil.extractUsername(getCookie(AUTHORIZATION_COOKIE, request).getValue());
+    public String getUsernameFromAuthorizationCookie(HttpServletRequest request) throws AuthorizationServiceException {
+        Cookie cookie = getCookie(AUTHORIZATION_COOKIE, request);
+        if(cookie == null) throw new AuthorizationServiceException("No Authorization Cookie");
+        String jwt = cookie.getValue();
+        if(jwt == null) throw new AuthorizationServiceException("Bad Cookie");
+        String username = jwtUtil.extractUsername(jwt);
+        if(username == null) throw new AuthorizationServiceException("Bad Cookie");
+
+        return username;
     }
 
     public String getTokenFromAuthorizationCookie(HttpServletRequest request){
-        return getCookie(AUTHORIZATION_COOKIE, request).getValue();
+        Cookie cookie = getCookie(AUTHORIZATION_COOKIE, request);
+        if(cookie != null)
+            return getCookie(AUTHORIZATION_COOKIE, request).getValue();
+        return null;
     }
 
 

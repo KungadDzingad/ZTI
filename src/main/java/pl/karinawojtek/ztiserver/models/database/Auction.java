@@ -1,5 +1,8 @@
 package pl.karinawojtek.ztiserver.models.database;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,17 +25,12 @@ public class Auction {
 
     private double buyNowPrice;
 
-    private boolean licitable;
-
     private String description;
 
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
+    @JsonBackReference
     private User owner;
-
-    @ManyToOne
-    @JoinColumn(name="bidder_id", nullable=true,insertable = false, updatable = false)
-    private User highestBidder;
 
     @Temporal(TemporalType.DATE)
     private Date publicationDate;
@@ -45,9 +43,11 @@ public class Auction {
     private Order order;
 
     @OneToMany(mappedBy = "reviewedAuction" )
+    @JsonIgnore
     private List<AuctionReview> reviews = new ArrayList<>();
 
     @ManyToMany
+    @JsonIgnore
     private List<User> favorites = new ArrayList<>();
 
 

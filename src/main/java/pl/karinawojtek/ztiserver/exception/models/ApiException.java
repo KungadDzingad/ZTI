@@ -1,4 +1,4 @@
-package pl.karinawojtek.ztiserver.exception;
+package pl.karinawojtek.ztiserver.exception.models;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,14 +10,17 @@ import java.time.ZonedDateTime;
 @Setter
 public class ApiException {
     private String message;
-    private Throwable cause;
     private HttpStatus status;
     private ZonedDateTime dateTime;
 
-    public ApiException(String message, Throwable cause, HttpStatus status, ZonedDateTime dateTime) {
+    public ApiException(String message,  HttpStatus status, ZonedDateTime dateTime) {
         this.message = message;
-        this.cause = cause;
         this.status = status;
         this.dateTime = dateTime;
+    }
+    public ApiException(Throwable throwable, HttpStatus status){
+        this.message = throwable.getMessage();
+        this.status = status;
+        this.dateTime = ZonedDateTime.now();
     }
 }

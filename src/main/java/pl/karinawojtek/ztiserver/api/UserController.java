@@ -1,11 +1,18 @@
 package pl.karinawojtek.ztiserver.api;
 
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import pl.karinawojtek.ztiserver.exception.custom.ObjectByIdNotFoundException;
+import pl.karinawojtek.ztiserver.exception.custom.WrongReviewMarkException;
+import pl.karinawojtek.ztiserver.models.database.Review;
 import pl.karinawojtek.ztiserver.models.database.User;
+import pl.karinawojtek.ztiserver.models.database.UserReview;
 import pl.karinawojtek.ztiserver.models.request.ChangePasswordRequest;
+import pl.karinawojtek.ztiserver.models.request.CreateReviewRequest;
 import pl.karinawojtek.ztiserver.models.request.RegisterUserRequest;
+import pl.karinawojtek.ztiserver.services.ReviewService;
 import pl.karinawojtek.ztiserver.services.UserService;
 import pl.karinawojtek.ztiserver.utils.CookieUtil;
 
@@ -17,7 +24,10 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserService service;
+    private UserService userService;
+    @Autowired
+    private ReviewService reviewService;
+
     @Autowired
     private CookieUtil cookieUtil;
 
@@ -25,28 +35,46 @@ public class UserController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public void createUser(@RequestBody RegisterUserRequest registerUserRequest){
 
-        service.registerUser(registerUserRequest);
+        userService.registerUser(registerUserRequest);
     }
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<User> getAllUsers(){
-        return service.getAllUsers();
+        return userService.getAllUsers();
     }
 
     @GetMapping ("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public User getUserById(@PathVariable long id){
-        return service.getUserById(id);
+    public User getUserById(@PathVariable long id) throws ObjectByIdNotFoundException {
+        return userService.getUserById(id);
     }
 
     @PostMapping ("/password-change")
     @ResponseStatus(code = HttpStatus.OK)
-    public void changePassword(HttpServletRequest request, @RequestBody ChangePasswordRequest changePasswordRequest){
+    public void changePassword(HttpServletRequest request, @RequestBody ChangePasswordRequest changePasswordRequest) throws NotFoundException {
        String username = cookieUtil.getUsernameFromAuthorizationCookie(request);
-       User user = service.getUserByUsername(username);
-       service.changePassword(user,changePasswordRequest);
+       User user = userService.getUserByUsername(username);
+       userService.changePassword(user,changePasswordRequest);
 
     }
+
+    @GetMapping("/{id}/reviews")
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<UserReview> getUserReviewed(@PathVariable long id) throws ObjectByIdNotFoundException {
+        User user = userService.getUserById(id);
+        return user.getMyReviews();
+    }
+
+    @PostMapping("/{id}/reviews")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public void createUserReview(HttpServletRequest request, @RequestBody CreateReviewRequest createReviewRequest,
+                                 @PathVariable long id) throws WrongReviewMarkException, ObjectByIdNotFoundException, NotFoundException {
+        User user = userService.getUserFromAuthorizedRequest(request);
+        User reviewed = userService.getUserById(id);
+        reviewService.createUserReview(user,reviewed, createReviewRequest);
+    }
+
+
 
 }

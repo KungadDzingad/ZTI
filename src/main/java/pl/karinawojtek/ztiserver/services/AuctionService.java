@@ -3,7 +3,7 @@ package pl.karinawojtek.ztiserver.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.karinawojtek.ztiserver.dao.AuctionRepository;
-import pl.karinawojtek.ztiserver.exception.ObjectByIdNotFoundException;
+import pl.karinawojtek.ztiserver.exception.custom.ObjectByIdNotFoundException;
 import pl.karinawojtek.ztiserver.models.database.Auction;
 import pl.karinawojtek.ztiserver.models.database.User;
 import pl.karinawojtek.ztiserver.models.request.CreateAuctionRequest;
@@ -18,36 +18,47 @@ import java.util.Optional;
 public class AuctionService {
 
     @Autowired
-    private AuctionRepository repository;
+    private AuctionRepository auctionRepository;
+
 
     public List<Auction> findAllAuctions() {
-        return (List<Auction>) repository.findAll();
+        return (List<Auction>) auctionRepository.findAll();
     }
 
     public Auction findAuctionById(long id) throws ObjectByIdNotFoundException {
-        Optional<Auction> auction = repository.findById(id);
+        Optional<Auction> auction = auctionRepository.findById(id);
         if(auction.isEmpty())
-            throw new ObjectByIdNotFoundException();
+            throw new ObjectByIdNotFoundException("No Auction with id " + id);
         return auction.get();
     }
 
-    public void createAuction(CreateAuctionRequest createAuction, User user) {
+    public void createAuction(CreateAuctionRequest createAuction, User user) throws ParseException {
         Auction auction = new Auction();
         auction.setName(createAuction.getName());
         auction.setDescription(createAuction.getDescription());
         Date date = new Date();
-        try {
-             date = new FromStringToDateFormatter().parseDate(createAuction.getClosingDate());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
+         date = new FromStringToDateFormatter().parseDate(createAuction.getClosingDate());
+
         auction.setClosingDate(date);
         auction.setBuyNowPrice(createAuction.getBuyNowPrice());
         auction.setOwner(user);
         auction.setCurrentPrice(createAuction.getCurrentPrice());
         auction.setPublicationDate(new Date());
-        auction.setLicitable(createAuction.isLicitable());
 
-        repository.save(auction);
+        auctionRepository.save(auction);
     }
+
+    public Auction getAuctionById(long id) throws ObjectByIdNotFoundException{
+        Optional<Auction> auctionOptional = auctionRepository.findById(id);
+        if(auctionOptional.isEmpty()) throw new ObjectByIdNotFoundException("No Auction with id " + id);
+
+        return auctionOptional.get();
+    }
+
+    public void deleteAuction(Auction auction) {
+        auctionRepository.delete(auction);
+    }
+
+
 }

@@ -1,4 +1,4 @@
-package pl.karinawojtek.ztiserver.exception;
+package pl.karinawojtek.ztiserver.exception.custom;
 
 public class DuplicateObjectException extends RuntimeException{
 

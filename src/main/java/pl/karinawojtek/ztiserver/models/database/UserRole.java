@@ -1,5 +1,6 @@
 package pl.karinawojtek.ztiserver.models.database;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,5 +25,6 @@ public class UserRole {
     private String roleName;
 
     @OneToMany(mappedBy = "role")
+    @JsonBackReference
     private List<User> users = new ArrayList<>();
 }

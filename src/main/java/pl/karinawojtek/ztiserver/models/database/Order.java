@@ -1,5 +1,6 @@
 package pl.karinawojtek.ztiserver.models.database;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
+    @JsonManagedReference
     private User purchaser;
 
     @OneToOne

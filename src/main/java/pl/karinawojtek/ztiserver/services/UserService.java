@@ -1,20 +1,25 @@
 package pl.karinawojtek.ztiserver.services;
 
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.karinawojtek.ztiserver.dao.RoleRepository;
 import pl.karinawojtek.ztiserver.dao.UserRepository;
-import pl.karinawojtek.ztiserver.exception.ApiRequestException;
-import pl.karinawojtek.ztiserver.exception.DuplicateObjectException;
-import pl.karinawojtek.ztiserver.exception.ObjectByIdNotFoundException;
+import pl.karinawojtek.ztiserver.exception.custom.ApiRequestException;
+import pl.karinawojtek.ztiserver.exception.custom.DuplicateObjectException;
+import pl.karinawojtek.ztiserver.exception.custom.ObjectByIdNotFoundException;
 import pl.karinawojtek.ztiserver.models.database.User;
 import pl.karinawojtek.ztiserver.models.database.UserRole;
 import pl.karinawojtek.ztiserver.models.request.ChangePasswordRequest;
 import pl.karinawojtek.ztiserver.models.request.RegisterUserRequest;
+import pl.karinawojtek.ztiserver.utils.CookieUtil;
+import pl.karinawojtek.ztiserver.utils.StringUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,28 +35,40 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder encoder;
+    @Autowired
+    private StringUtil stringUtil;
 
-    public User getUserById(long id) throws ApiRequestException {
+    @Autowired
+    private CookieUtil cookieUtil;
+
+    public User getUserById(long id) throws ApiRequestException, ObjectByIdNotFoundException {
         Optional<User> userOpt = userRepository.findById(id);
         if(userOpt.isEmpty())
-            throw new ApiRequestException(new ObjectByIdNotFoundException(), HttpStatus.BAD_REQUEST);
+            throw new ObjectByIdNotFoundException("No User with id "+ id );
         return userOpt.get();
     }
 
-    public User getUserByUsername(String username) throws ApiRequestException {
+    public User getUserByUsername(String username) throws NotFoundException {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if(userOpt.isEmpty())
-            throw new ApiRequestException(new BadCredentialsException(username + " - not found"),HttpStatus.BAD_REQUEST);
+            throw new NotFoundException(username + " - not found");
         return userOpt.get();
     }
 
-    public void registerUser(RegisterUserRequest reqisterUser) throws ApiRequestException {
+    public void registerUser(RegisterUserRequest reqisterUser) {
         if(userRepository.findByUsername(reqisterUser.getUsername()).isPresent())
-            throw new ApiRequestException(new DuplicateObjectException("Username already registered"), HttpStatus.BAD_REQUEST);
-        if(userRepository.findByEmail(reqisterUser.getUsername()).isPresent())
-            throw new ApiRequestException(new DuplicateObjectException("Username already registered"), HttpStatus.BAD_REQUEST);
-        if(userRepository.findByPhoneNumber(reqisterUser.getUsername()).isPresent())
-            throw new ApiRequestException(new DuplicateObjectException("Username already registered"), HttpStatus.BAD_REQUEST);
+            throw new DuplicateObjectException("Username already registered");
+        if(userRepository.findByEmail(reqisterUser.getEmail()).isPresent())
+            throw new DuplicateObjectException("Username already registered");
+        if(userRepository.findByPhoneNumber(reqisterUser.getPhoneNumber()).isPresent())
+            throw new DuplicateObjectException("Username already registered");
+
+        if(!stringUtil.checkCorrectEmail(reqisterUser.getEmail()))
+            throw new  BadCredentialsException("Wrong email");
+        if(!stringUtil.checkPhoneNumberString(reqisterUser.getPhoneNumber()))
+            throw new BadCredentialsException("Wrong Phone Number");
+
+
         User user = new User();
         user.setEmail(reqisterUser.getEmail());
         user.setPassword(encoder.encode(reqisterUser.getPassword()));
@@ -75,4 +92,10 @@ public class UserService {
         userRepository.save(user);
 
     }
+
+    public User getUserFromAuthorizedRequest(HttpServletRequest request) throws AuthorizationServiceException, NotFoundException {
+        String username = cookieUtil.getUsernameFromAuthorizationCookie(request);
+        return this.getUserByUsername(username);
+    }
+
 }

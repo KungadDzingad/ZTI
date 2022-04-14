@@ -9,7 +9,6 @@ public class CreateAuctionRequest {
     private String name;
     private double currentPrice;
     private double buyNowPrice;
-    private boolean licitable;
     private String description;
     private String closingDate;
 }
