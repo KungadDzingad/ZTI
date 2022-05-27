@@ -3,6 +3,7 @@ package pl.karinawojtek.ztiserver.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,9 @@ import pl.karinawojtek.ztiserver.services.MyUserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguartion extends WebSecurityConfigurerAdapter {
+
+    public final static String CORS = "http://localhost:3000";
+
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
@@ -41,9 +45,14 @@ public class SecurityConfiguartion extends WebSecurityConfigurerAdapter {
 //                .httpBasic()
 //                .and()
                 .authorizeRequests()
-                .antMatchers("/api/auth").permitAll()
-                .antMatchers( "/api/users").permitAll()
-                .antMatchers("api/auctions/**").authenticated()
+                .antMatchers("/api/auth/").permitAll()
+                .antMatchers( "/api/users/").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/auctions/").permitAll()
+//                .antMatchers("/api/**").authenticated()
+//                .antMatchers("api/auctions/**").authenticated()
+//                .antMatchers(HttpMethod.POST, "api/auctions").authenticated()
+
+
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

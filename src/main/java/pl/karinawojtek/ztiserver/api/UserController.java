@@ -32,6 +32,7 @@ public class UserController {
     private CookieUtil cookieUtil;
 
     @PostMapping
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.CREATED)
     public void createUser(@RequestBody RegisterUserRequest registerUserRequest){
 
@@ -39,18 +40,21 @@ public class UserController {
     }
 
     @GetMapping
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.OK)
     public List<User> getAllUsers(){
         return userService.getAllUsers();
     }
 
     @GetMapping ("/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.OK)
     public User getUserById(@PathVariable long id) throws ObjectByIdNotFoundException {
         return userService.getUserById(id);
     }
 
     @PostMapping ("/password-change")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.OK)
     public void changePassword(HttpServletRequest request, @RequestBody ChangePasswordRequest changePasswordRequest) throws NotFoundException {
        String username = cookieUtil.getUsernameFromAuthorizationCookie(request);
@@ -60,6 +64,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/reviews")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.OK)
     public List<UserReview> getUserReviewed(@PathVariable long id) throws ObjectByIdNotFoundException {
         User user = userService.getUserById(id);
@@ -67,6 +72,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/reviews")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.CREATED)
     public void createUserReview(HttpServletRequest request, @RequestBody CreateReviewRequest createReviewRequest,
                                  @PathVariable long id) throws WrongReviewMarkException, ObjectByIdNotFoundException, NotFoundException {

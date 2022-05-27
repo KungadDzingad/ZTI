@@ -14,6 +14,7 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @DeleteMapping("/{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deleteReciew(@PathVariable long id) throws ObjectByIdNotFoundException {
         reviewService.deleteReview(reviewService.findReview(id));

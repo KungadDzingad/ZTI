@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.web.bind.annotation.*;
+import pl.karinawojtek.ztiserver.config.SecurityConfiguartion;
 import pl.karinawojtek.ztiserver.exception.custom.ObjectByIdNotFoundException;
 import pl.karinawojtek.ztiserver.exception.custom.WrongReviewMarkException;
 import pl.karinawojtek.ztiserver.models.database.Auction;
@@ -22,7 +23,7 @@ import java.text.ParseException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auctions")
+@RequestMapping("/api/auctions/")
 public class AuctionController {
 
     @Autowired
@@ -36,12 +37,14 @@ public class AuctionController {
     private CookieUtil cookieUtil;
 
     @GetMapping
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.OK)
     public List<Auction> getAllAuctions(){
         return auctionService.findAllAuctions();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.OK)
     public Auction getAuctionById(@PathVariable long id) throws ObjectByIdNotFoundException {
         return auctionService.findAuctionById(id);
@@ -54,7 +57,8 @@ public class AuctionController {
         auctionService.createAuction(createAuction, user);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deleteAuction(HttpServletRequest request, @PathVariable long id) throws AuthorizationServiceException, ObjectByIdNotFoundException, NotFoundException {
        User user = userService.getUserFromAuthorizedRequest(request);
@@ -64,14 +68,16 @@ public class AuctionController {
         }else throw new AuthorizationServiceException("User " + user.getUsername() + " not allowed to perform this operation");
     }
 
-    @GetMapping("/{id}/reviews")
+    @GetMapping("{id}/reviews")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.OK)
     public List<AuctionReview> getAuctionReviews(@PathVariable long id) throws ObjectByIdNotFoundException {
         Auction auction = auctionService.getAuctionById(id);
         return auction.getReviews();
     }
 
-    @PostMapping("/{id}/reviews")
+    @PostMapping("{id}/reviews")
+    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseStatus(code = HttpStatus.CREATED)
     public void addAuctionReview(HttpServletRequest request, @PathVariable long id,
                                  @RequestBody CreateReviewRequest reviewRequest)
