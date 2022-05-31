@@ -36,11 +36,11 @@ public class AuctionService {
         Auction auction = new Auction();
         auction.setName(createAuction.getName());
         auction.setDescription(createAuction.getDescription());
-        Date date = new Date();
+//        Date date = new Date();
 
-         date = new FromStringToDateFormatter().parseDate(createAuction.getClosingDate());
+//         date = new FromStringToDateFormatter().parseDate(createAuction.getClosingDate());
 
-        auction.setClosingDate(date);
+        auction.setClosingDate(null);
         auction.setBuyNowPrice(createAuction.getBuyNowPrice());
         auction.setOwner(user);
         auction.setCurrentPrice(createAuction.getCurrentPrice());

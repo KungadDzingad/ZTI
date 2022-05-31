@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import pl.karinawojtek.ztiserver.models.request.AuthenticateRequest;
+import pl.karinawojtek.ztiserver.models.response.TokenResponse;
 import pl.karinawojtek.ztiserver.services.MyUserDetailsService;
 import pl.karinawojtek.ztiserver.utils.JwtUtil;
 
@@ -25,7 +26,7 @@ public class AuthController {
 
     @PostMapping
     @CrossOrigin(origins = "http://localhost:3000")
-    private String authenticate(@RequestBody AuthenticateRequest authRequest) throws Exception{
+    private TokenResponse authenticate(@RequestBody AuthenticateRequest authRequest) throws Exception{
         try{
             authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(),authRequest.getPassword())
@@ -35,7 +36,8 @@ public class AuthController {
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
-        return jwtUtil.generateToken(userDetails);
+        TokenResponse tokenResponse = new TokenResponse(jwtUtil.generateToken(userDetails));
+        return tokenResponse;
     }
 
 

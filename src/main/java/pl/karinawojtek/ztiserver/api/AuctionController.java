@@ -24,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/auctions/")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuctionController {
 
     @Autowired
@@ -52,6 +53,7 @@ public class AuctionController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
+    @CrossOrigin(origins = "http://localhost:3000")
     public void createAuction(@RequestBody CreateAuctionRequest createAuction, HttpServletRequest request) throws ParseException, NotFoundException {
         User user = userService.getUserFromAuthorizedRequest(request);
         auctionService.createAuction(createAuction, user);

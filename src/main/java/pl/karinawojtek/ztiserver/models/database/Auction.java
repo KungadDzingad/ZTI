@@ -36,6 +36,7 @@ public class Auction {
     private Date publicationDate;
 
     @Temporal(TemporalType.DATE)
+    @Column(nullable = true)
     private Date closingDate;
 
     @OneToOne

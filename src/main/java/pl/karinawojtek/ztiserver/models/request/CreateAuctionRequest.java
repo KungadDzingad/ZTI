@@ -10,5 +10,4 @@ public class CreateAuctionRequest {
     private double currentPrice;
     private double buyNowPrice;
     private String description;
-    private String closingDate;
 }
