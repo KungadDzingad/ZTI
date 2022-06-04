@@ -1,5 +1,6 @@
 package pl.karinawojtek.ztiserver.models.database;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class User {
     private Date registrationDate;
 
     @OneToMany(mappedBy = "owner")
-    @JsonIgnore
+    @JsonBackReference
     private List<Auction> auctions = new ArrayList<>();
 
     @ManyToMany

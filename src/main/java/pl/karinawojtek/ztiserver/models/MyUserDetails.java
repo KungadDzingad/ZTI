@@ -12,15 +12,21 @@ import java.util.Optional;
 
 public class MyUserDetails implements UserDetails {
 
+    private long id;
     private String username;
     private String password;
 
     public MyUserDetails(User user){
         this.username = user.getUsername();
         this.password = user.getPassword();
+        this.id = user.getId();
     }
 
     public MyUserDetails(){}
+
+    public long getId(){
+        return id;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

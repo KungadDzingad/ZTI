@@ -12,7 +12,9 @@ import pl.karinawojtek.ztiserver.utils.FromStringToDateFormatter;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AuctionService {
@@ -57,8 +59,16 @@ public class AuctionService {
     }
 
     public void deleteAuction(Auction auction) {
+        var users = auction.getFavorites();
+        for (User user : users) {
+            user.getFavourites().remove(auction);
+        }
         auctionRepository.delete(auction);
     }
 
 
+    public List<Auction> findAllAuctionsWithFilter(String auctionFilter) {
+        return findAllAuctions().stream().filter(s-> s.getDescription().toLowerCase().contains(auctionFilter.toLowerCase()) ||
+                s.getName().toLowerCase().contains(auctionFilter.toLowerCase())).collect(Collectors.toList());
+    }
 }

@@ -9,9 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.karinawojtek.ztiserver.dao.RoleRepository;
 import pl.karinawojtek.ztiserver.dao.UserRepository;
+import pl.karinawojtek.ztiserver.exception.custom.AlreadyInFavouritesException;
 import pl.karinawojtek.ztiserver.exception.custom.ApiRequestException;
 import pl.karinawojtek.ztiserver.exception.custom.DuplicateObjectException;
 import pl.karinawojtek.ztiserver.exception.custom.ObjectByIdNotFoundException;
+import pl.karinawojtek.ztiserver.models.database.Auction;
 import pl.karinawojtek.ztiserver.models.database.User;
 import pl.karinawojtek.ztiserver.models.database.UserRole;
 import pl.karinawojtek.ztiserver.models.request.ChangePasswordRequest;
@@ -98,4 +100,14 @@ public class UserService {
         return this.getUserByUsername(username);
     }
 
+    public void addFavourite(User user, Auction auction) throws AlreadyInFavouritesException {
+        if(user.getFavourites().contains(auction)) throw new AlreadyInFavouritesException();
+        user.getFavourites().add(auction);
+        auction.getFavorites().add(user);
+        userRepository.save(user);
+    }
+
+    public List<Auction> getUserAuctions(User user) {
+        return user.getAuctions();
+    }
 }

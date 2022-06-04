@@ -7,9 +7,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import pl.karinawojtek.ztiserver.exception.custom.ApiRequestException;
-import pl.karinawojtek.ztiserver.exception.custom.ObjectByIdNotFoundException;
-import pl.karinawojtek.ztiserver.exception.custom.WrongReviewMarkException;
+import pl.karinawojtek.ztiserver.exception.custom.*;
 import pl.karinawojtek.ztiserver.exception.models.ApiException;
 
 import java.text.ParseException;
@@ -43,7 +41,7 @@ public class ApiRequestExcptionHandler {
         );
     }
 
-    @ExceptionHandler(value = {AuthorizationServiceException.class})
+    @ExceptionHandler(value = {AuthorizationServiceException.class, UnauthorizedException.class})
     public ResponseEntity<?> handleAuthorizationException(AuthorizationServiceException e){
         return new ResponseEntity<>(
                 new ApiException(e.getMessage(),HttpStatus.UNAUTHORIZED,ZonedDateTime.now()),
@@ -67,5 +65,13 @@ public class ApiRequestExcptionHandler {
         ApiException apiException = new ApiException(e, HttpStatus.BAD_REQUEST);
         apiException.setMessage("Wrong Date Format");
         return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {AlreadyInFavouritesException.class})
+    ResponseEntity<?> handleConflictException(Exception e){
+        return new ResponseEntity<>(
+                new ApiException(e.getMessage(),HttpStatus.CONFLICT,ZonedDateTime.now()),
+                HttpStatus.CONFLICT
+        );
     }
 }

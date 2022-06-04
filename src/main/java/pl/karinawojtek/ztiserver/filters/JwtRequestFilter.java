@@ -30,11 +30,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private CookieUtil cookieUtil;
 
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String jwt = cookieUtil.getTokenFromAuthorizationCookie(request);
+//        if(jwt == null){
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+
+
         String username = jwt != null ? jwtUtil.extractUsername(jwt) : null;
 
 
